@@ -8,6 +8,8 @@ class Tournament(models.Model):
 
     name = models.CharField(max_length=100)
     number_of_teams = models.IntegerField()
+    number_of_courts = models.IntegerField(default=1)
+    players_per_team = models.IntegerField(default=2)
     sets_to_win = models.IntegerField()
     points_per_set = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -23,12 +25,23 @@ class Tournament(models.Model):
             planner = KnockoutMode()
         planner.generate_schedule(self)
 
+
 class Team(models.Model):
     tournament = models.ForeignKey(Tournament, related_name='teams', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
+
+class Court(models.Model):
+    tournament = models.ForeignKey(Tournament, related_name='courts', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+
+
+class Player(models.Model):
+    team = models.ForeignKey(Team, related_name='players', on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    skill_level = models.IntegerField()
 
 class Match(models.Model):
     tournament = models.ForeignKey(Tournament, related_name='matches', on_delete=models.CASCADE)
@@ -40,6 +53,7 @@ class Match(models.Model):
 
     def __str__(self):
         return f"{self.team1.name} vs {self.team2.name}"
+
 
 class TournamentMode:
     def generate_schedule(self, tournament):
@@ -56,6 +70,7 @@ class RoundRobinMode(TournamentMode):
                 match = Match(tournament=tournament, team1=teams[i], team2=teams[j])
                 matches.append(match)
         Match.objects.bulk_create(matches)
+
 
 class KnockoutMode(TournamentMode):
     """ K.-o.-System """

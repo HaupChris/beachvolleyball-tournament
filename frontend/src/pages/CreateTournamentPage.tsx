@@ -1,15 +1,19 @@
-// src/pages/CreateTournamentPage.tsx
 import React, {useState} from 'react';
 import {Container, TextField, Button, Box, Typography} from '@mui/material';
 import {createTournament} from '../services/api';
+import {useNavigate} from "react-router-dom";
 
 const CreateTournamentPage: React.FC = () => {
     const [name, setName] = useState('');
-    const [teams, setTeams] = useState(0);
-    const [sets, setSets] = useState(0);
-    const [points, setPoints] = useState(0);
+    const [numTeams, setNumTeams] = useState(8);
+    const [sets, setSets] = useState(1);
+    const [points, setPoints] = useState(15);
     const [generatedPin, setGeneratedPin] = useState<string | null>(null);  // For storing the PIN
     const [error, setError] = useState<string | null>(null);
+    const [numPlayersPerTeam, setNumPlayersPerTeam] = useState(2);
+    const [numCourts, setNumCourts] = useState(2);
+    const navigate = useNavigate();
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -18,9 +22,11 @@ const CreateTournamentPage: React.FC = () => {
         try {
             const tournament = {
                 name: name,
-                number_of_teams: teams,
+                number_of_teams: numTeams,
                 sets_to_win: sets,
                 points_per_set: points,
+                number_of_courst: numCourts,
+                players_per_team: numPlayersPerTeam,
                 created_at: "a",
                 password: "a"
             };
@@ -28,6 +34,7 @@ const CreateTournamentPage: React.FC = () => {
 
             // Store the generated PIN
             setGeneratedPin(createdTournament.password);
+            navigate(`/tournament/${createdTournament.id}/edit`);
         } catch (err) {
             setError('Failed to create tournament');
         }
@@ -48,8 +55,24 @@ const CreateTournamentPage: React.FC = () => {
                 <TextField
                     label="Anzahl der Teams"
                     type="number"
-                    value={teams}
-                    onChange={(e) => setTeams(parseInt(e.target.value))}
+                    value={numTeams}
+                    onChange={(e) => setNumTeams(parseInt(e.target.value))}
+                    fullWidth
+                    margin="normal"
+                />
+                <TextField
+                    label="Spieler pro Team"
+                    type="number"
+                    value={numPlayersPerTeam}
+                    onChange={(e) => setNumPlayersPerTeam(parseInt(e.target.value))}
+                    fullWidth
+                    margin="normal"
+                />
+                <TextField
+                    label="Anzahl der Felder"
+                    type="number"
+                    value={numCourts}
+                    onChange={(e) => setNumCourts(parseInt(e.target.value))}
                     fullWidth
                     margin="normal"
                 />

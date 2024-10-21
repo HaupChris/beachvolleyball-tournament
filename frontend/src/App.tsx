@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import CreateTournamentPage from "./pages/CreateTournamentPage";
 import TournamentDetailPage from "./pages/TournamentDetailPage";
 import Navbar from "./components/Navbar";
+import EditTournamentPage from "./pages/EditTournament";
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                     <Route path="/" element={<HomePage/>}/>
                     <Route path="/create-tournament" element={<CreateTournamentPage/>}/>
                     <Route path="/tournament/:id" element={<TournamentDetailPage/>}/>
+                    <Route path={"/tournament/:id/edit"} element={<EditTournamentPage/>}/>
                 </Routes>
             </Router>
         </ThemeProvider>

@@ -71,7 +71,6 @@ class RoundRobinMode(TournamentMode):
                 matches.append(match)
         Match.objects.bulk_create(matches)
 
-
 class KnockoutMode(TournamentMode):
     """ K.-o.-System """
     def generate_schedule(self, tournament):

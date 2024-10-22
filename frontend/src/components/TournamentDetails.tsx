@@ -1,6 +1,7 @@
 import {ITournament} from "../types/api";
-import {Box, TextField} from "@mui/material";
+import {Box, InputLabel, MenuItem, Select, TextField} from "@mui/material";
 import React from "react";
+import {Form} from "react-router-dom";
 
 interface IProps {
     tournament: ITournament
@@ -59,5 +60,19 @@ export function TournamentDetails(props: IProps) {
             fullWidth
             margin="normal"
         />
+
+        <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            fullWidth
+            value={tournament.mode}
+            label="Modus"
+            onChange={(e) => props.updateTournamentDetail('mode', e.target.value)}
+        >
+            <MenuItem value={"round_robin"}>Jeder gegen Jeden</MenuItem>
+            <MenuItem value={"knockout"}>K.O. System</MenuItem>
+
+        </Select>
+
     </Box>;
 }

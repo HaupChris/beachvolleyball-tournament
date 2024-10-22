@@ -1,6 +1,6 @@
 // src/services/api.ts
 import axios from 'axios';
-import {ITournament, ITeam, IMatch, IPlayer, Court} from '../types/api';
+import {ITournament, ITeam, IMatch, ICourt} from '../types/api';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -46,44 +46,44 @@ export const validateTournamentPin = async (tournamentId: string, pin: string): 
 
 
 // Helper function to create dummy players
-const createDummyPlayer = (firstName: string, lastName: string, skillLevel: number): IPlayer => {
-    return {
-        first_name: firstName,
-        last_name: lastName,
-        skill_level: skillLevel,
-    };
-};
+// const createDummyPlayer = (firstName: string, lastName: string, skillLevel: number): IPlayer => {
+//     return {
+//         first_name: firstName,
+//         last_name: lastName,
+//         skill_level: skillLevel,
+//     };
+// };
 
 // Helper function to create dummy teams
-const createDummyTeam = (id: number, tournamentId: number): ITeam => {
-    return {
-        id: id,
-        tournament: tournamentId,
-        players: [
-            createDummyPlayer('Player1', `Team${id}`, Math.floor(Math.random() * 10)),
-            createDummyPlayer('Player2', `Team${id}`, Math.floor(Math.random() * 10)),
-        ],
-    };
-};
-
-// Helper function to create dummy matches
-const createDummyMatch = (id: number, team1: ITeam, team2: ITeam): IMatch => {
-    return {
-        id: id,
-        team1: team1,
-        team2: team2,
-        score_team1: Math.floor(Math.random() * 25),
-        score_team2: Math.floor(Math.random() * 25),
-        played_at: null, // set to null initially, can be updated with actual timestamp when played
-    };
-};
-
-// Helper function to create dummy courts
-const createDummyCourt = (name: string): Court => {
-    return {
-        name: name,
-    };
-};
+// const createDummyTeam = (id: number, tournamentId: number): ITeam => {
+//     return {
+//         id: id,
+//         tournament: tournamentId,
+//         players: [
+//             createDummyPlayer('Player1', `Team${id}`, Math.floor(Math.random() * 10)),
+//             createDummyPlayer('Player2', `Team${id}`, Math.floor(Math.random() * 10)),
+//         ],
+//     };
+// };
+//
+// // Helper function to create dummy matches
+// const createDummyMatch = (id: number, team1: ITeam, team2: ITeam): IMatch => {
+//     return {
+//         id: id,
+//         team1: team1,
+//         team2: team2,
+//         score_team1: Math.floor(Math.random() * 25),
+//         score_team2: Math.floor(Math.random() * 25),
+//         played_at: null, // set to null initially, can be updated with actual timestamp when played
+//     };
+// };
+//
+// // Helper function to create dummy courts
+// const createDummyCourt = (name: string): ICourt => {
+//     return {
+//         name: name,
+//     };
+// };
 
 // Function to create a dummy tournament
 export function createDummyTournament(): ITournament{
@@ -92,19 +92,13 @@ export function createDummyTournament(): ITournament{
     const numberOfCourts = 2; // Example: 2 courts for the tournament
 
     const teams: ITeam[] = [];
-    for (let i = 1; i <= numberOfTeams; i++) {
-        teams.push(createDummyTeam(i, tournamentId));
-    }
 
-    const courts: Court[] = [];
-    for (let i = 1; i <= numberOfCourts; i++) {
-        courts.push(createDummyCourt(`Court ${i}`));
-    }
 
-    const matches: IMatch[] = [
-        createDummyMatch(1, teams[0], teams[1]),
-        createDummyMatch(2, teams[2], teams[3]),
-    ];
+    const courts: ICourt[] = [];
+
+
+    const matches: IMatch[] = []
+
 
     return {
         id: tournamentId,

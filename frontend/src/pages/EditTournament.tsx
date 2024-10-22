@@ -1,22 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import {Container, Button, Typography} from '@mui/material';
-import {createDummyTournament, fetchTournamentDetails} from '../services/api';
+import {createDummyTournament, fetchTournamentDetails, updateTeamPlayers} from '../services/api';
 import {useParams} from 'react-router-dom';
 import {ITeam, ITournament} from "../types/api";
 import {TournamentDetails} from "../components/TournamentDetails";
 import {TournamentTeams} from "../components/TournamentTeams";
+import {updateTournamentAttributes} from "./CreateTournamentPage";
 
 
-
-function updateTournamentAttributes(
-    tournament: ITournament,
-    updates: Partial<Omit<ITournament, 'courts' | 'teams' | 'matches'>>
-): ITournament {
-    return {
-        ...tournament,
-        ...updates,
-    };
-}
 
 const EditTournamentPage: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -47,6 +38,9 @@ const EditTournamentPage: React.FC = () => {
             ...prevTournament,
             teams: updatedTeams,
         }));
+        const teams = updatedTeams.map((team, idx)=> team.players.map(player => player.first_name + " " + player.last_name ))
+        console.log(teams);
+        updateTeamPlayers(tournament.id.toString(), teams).then();
     };
 
 

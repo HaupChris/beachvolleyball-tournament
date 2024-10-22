@@ -9,7 +9,7 @@ const Navbar: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" style={{marginBottom: "2em"}}>
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           Beachvolleyball Turnier

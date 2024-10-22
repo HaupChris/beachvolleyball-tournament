@@ -24,7 +24,7 @@ export interface IMatch {
     played_at: string | null;
 }
 
-export interface Court {
+export interface ICourt {
     name: string;
 }
 

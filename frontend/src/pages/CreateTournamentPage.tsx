@@ -1,37 +1,49 @@
 import React, {useState} from 'react';
-import {Container, TextField, Button, Box, Typography} from '@mui/material';
-import {createTournament} from '../services/api';
+import {Container, Button, Box, Typography, Stepper, Step, StepLabel} from '@mui/material';
+import {createDummyTournament, createTournament} from '../services/api';
 import {useNavigate} from "react-router-dom";
+import {TournamentDetails} from "../components/TournamentDetails";
+import {ITournament} from "../types/api";
+import {TournamentTeams} from "../components/TournamentTeams";
+import {TournamentCourts} from "../components/TournamentCourts";
+
+export function updateTournamentAttributes(
+    tournament: ITournament,
+    updates: Partial<Omit<ITournament, 'courts' | 'teams' | 'matches'>>
+): ITournament {
+    return {
+        ...tournament,
+        ...updates,
+    };
+}
 
 const CreateTournamentPage: React.FC = () => {
-    const [name, setName] = useState('');
-    const [numTeams, setNumTeams] = useState(8);
-    const [sets, setSets] = useState(1);
-    const [points, setPoints] = useState(15);
+    const [tournament, setTournament] = useState(createDummyTournament());
     const [generatedPin, setGeneratedPin] = useState<string | null>(null);  // For storing the PIN
     const [error, setError] = useState<string | null>(null);
-    const [numPlayersPerTeam, setNumPlayersPerTeam] = useState(2);
-    const [numCourts, setNumCourts] = useState(2);
+    const [activeStep, setActiveStep] = useState(0); // Stepper state
     const navigate = useNavigate();
 
+    const handleAttributeChange = (attribute: keyof Omit<ITournament, 'courts' | 'teams' | 'matches'>, value: any) => {
+        if (tournament) {
+            setTournament(updateTournamentAttributes(tournament, {[attribute]: value}));
+        }
+    };
+
+    const handleNext = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    };
+
+    const handleBack = () => {
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null); // Reset error on form submit
         setGeneratedPin(null); // Reset PIN on form submit
         try {
-            const tournament = {
-                name: name,
-                number_of_teams: numTeams,
-                sets_to_win: sets,
-                points_per_set: points,
-                number_of_courst: numCourts,
-                players_per_team: numPlayersPerTeam,
-                created_at: "a",
-                password: "a"
-            };
             const createdTournament = await createTournament(tournament);
-
             // Store the generated PIN
             setGeneratedPin(createdTournament.password);
             navigate(`/tournament/${createdTournament.id}/edit`);
@@ -40,62 +52,55 @@ const CreateTournamentPage: React.FC = () => {
         }
     };
 
+    const steps = ['Details', 'Teams', 'Feldernamen'];
+
+    const renderStepContent = (step: number) => {
+        switch (step) {
+            case 0:
+                return <TournamentDetails tournament={tournament}
+                                          updateTournamentDetail={handleAttributeChange}/>;
+            case 1:
+                return <TournamentTeams tournament={tournament}
+                                        updateTeams={(teams) => setTournament({...tournament, teams})}/>;
+            case 2:
+                return <TournamentCourts tournament={tournament}
+                                         updateCourts={(courts) => setTournament({...tournament, courts})}/>;
+            default:
+                return null;
+        }
+    };
 
     return (
         <Container>
-            <Box component="form" onSubmit={handleSubmit}>
-                <TextField
-                    label="Turniername"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    fullWidth
-                    margin="normal"
-                    required
-                />
-                <TextField
-                    label="Anzahl der Teams"
-                    type="number"
-                    value={numTeams}
-                    onChange={(e) => setNumTeams(parseInt(e.target.value))}
-                    fullWidth
-                    margin="normal"
-                />
-                <TextField
-                    label="Spieler pro Team"
-                    type="number"
-                    value={numPlayersPerTeam}
-                    onChange={(e) => setNumPlayersPerTeam(parseInt(e.target.value))}
-                    fullWidth
-                    margin="normal"
-                />
-                <TextField
-                    label="Anzahl der Felder"
-                    type="number"
-                    value={numCourts}
-                    onChange={(e) => setNumCourts(parseInt(e.target.value))}
-                    fullWidth
-                    margin="normal"
-                />
-                <TextField
-                    label="Gewinnsätze"
-                    type="number"
-                    value={sets}
-                    onChange={(e) => setSets(parseInt(e.target.value))}
-                    fullWidth
-                    margin="normal"
-                />
-                <TextField
-                    label="Punkte pro Satz"
-                    type="number"
-                    value={points}
-                    onChange={(e) => setPoints(parseInt(e.target.value))}
-                    fullWidth
-                    margin="normal"
-                />
-                <Button type="submit" variant="contained" color="primary">
-                    Turnier erstellen
-                </Button>
+            <Stepper activeStep={activeStep}>
+                {steps.map((label) => (
+                    <Step key={label}>
+                        <StepLabel>{label}</StepLabel>
+                    </Step>
+                ))}
+            </Stepper>
+
+            <Box mt={4}>
+                {renderStepContent(activeStep)}
+                <Box mt={2}>
+                    {activeStep > 0 && (
+                        <Button variant="outlined" onClick={handleBack} sx={{mr: 2}}>
+                            Zurück
+                        </Button>
+                    )}
+                    {activeStep === steps.length - 1 ? (
+                        <Button type="submit" variant="contained" color="primary" onClick={handleSubmit}>
+                            Turnier erstellen
+                        </Button>
+                    ) : (
+                        <Button variant="contained" color="primary" onClick={handleNext}>
+                            Weiter
+                        </Button>
+                    )}
+
+                </Box>
             </Box>
+
             {/* Display the generated PIN after successful creation */}
             {generatedPin && (
                 <Box mt={4}>

@@ -20,11 +20,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
         # Save the tournament with the generated PIN
         tournament = serializer.save(password=generated_pin)
 
-        # Automatically create courts for the tournament
-        for i in range(tournament.number_of_courts):
-            court_name = f"Feld {i + 1}"  # Automatically generate court names
-            Court.objects.create(tournament=tournament, name=court_name)
-
         # Return the tournament data along with the generated PIN
         return tournament
 
@@ -89,32 +84,6 @@ class TournamentViewSet(viewsets.ModelViewSet):
         except Exception as e:
 
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['post'])
-    def update_courts(self, request, pk=None):
-        tournament = self.get_object()
-        courts_data = request.data.get('courts', [])
-        for idx, court_name in enumerate(courts_data):
-            court, created = Court.objects.get_or_create(tournament=tournament, id=idx + 1)
-            court.name = court_name
-            court.save()
-        return Response({'message': 'Courts updated successfully.'})
-
-    @action(detail=True, methods=['post'])
-    def update_team_players(self, request, pk=None):
-        tournament = self.get_object()
-        teams_data = request.data.get('teams', [])
-
-        for team_idx, players_data in enumerate(teams_data):
-            team = Team.objects.filter(tournament=tournament)[team_idx]
-            for player_idx, player_name in enumerate(players_data):
-                first_name, last_name = player_name.split(" ")
-                player, created = Player.objects.get_or_create(team=team, id=player_idx + 1)
-                player.first_name = first_name
-                player.last_name = last_name
-                player.save()
-
-        return Response({'message': 'Players updated successfully.'})
 
 
 class TeamViewSet(viewsets.ModelViewSet):

@@ -88,8 +88,6 @@ export const validateTournamentPin = async (tournamentId: string, pin: string): 
 // Function to create a dummy tournament
 export function createDummyTournament(): ITournament{
     const tournamentId = Math.floor(Math.random() * 1000); // Random tournament ID
-    const numberOfTeams = 4; // Example: 4 teams in the tournament
-    const numberOfCourts = 2; // Example: 2 courts for the tournament
 
     const teams: ITeam[] = [];
 
@@ -103,10 +101,8 @@ export function createDummyTournament(): ITournament{
     return {
         id: tournamentId,
         name: 'Beach Volleyball Tournament',
-        number_of_teams: numberOfTeams,
         sets_to_win: 2,
         points_per_set: 21,
-        number_of_courts: numberOfCourts,
         players_per_team: 2,
         courts: courts,
         teams: teams,

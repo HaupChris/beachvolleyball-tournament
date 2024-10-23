@@ -1,11 +1,23 @@
 import React, {useState} from 'react';
-import {Container, Button, Box, Typography, Stepper, Step, StepLabel} from '@mui/material';
+import {
+    Container,
+    Button,
+    Box,
+    Typography,
+    Stepper,
+    Step,
+    StepLabel,
+    Dialog,
+    DialogContent,
+    DialogActions
+} from '@mui/material';
 import {createDummyTournament, createTournament} from '../services/api';
 import {useNavigate} from "react-router-dom";
 import {TournamentDetails} from "../components/TournamentDetails";
-import {ITournament} from "../types/api";
+import {ICourt, ITeam, ITournament} from "../types/api";
 import {TournamentTeams} from "../components/TournamentTeams";
 import {TournamentCourts} from "../components/TournamentCourts";
+import {CheckCircle} from "@mui/icons-material";
 
 export function updateTournamentAttributes(
     tournament: ITournament,
@@ -19,9 +31,9 @@ export function updateTournamentAttributes(
 
 const CreateTournamentPage: React.FC = () => {
     const [tournament, setTournament] = useState(createDummyTournament());
-    const [generatedPin, setGeneratedPin] = useState<string | null>(null);  // For storing the PIN
     const [error, setError] = useState<string | null>(null);
     const [activeStep, setActiveStep] = useState(0); // Stepper state
+    const [openModal, setOpenModal] = useState(false); // Modal state
     const navigate = useNavigate();
 
     const handleAttributeChange = (attribute: keyof Omit<ITournament, 'courts' | 'teams' | 'matches'>, value: any) => {
@@ -38,18 +50,70 @@ const CreateTournamentPage: React.FC = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
+    const updateNumberOfTournamentCourts = (newAmount: number) => {
+        setTournament((prevTournament) => {
+            const courts = [...prevTournament.courts]; // Copy the existing courts array
+
+            if (courts.length >= newAmount) {
+                return {
+                    ...prevTournament,
+                    courts: courts.slice(0, newAmount), // Slice the array immutably
+                };
+            } else {
+                const missingCourtNumbers = Array.from({length: newAmount - courts.length}, (_, i) => courts.length + i + 1);
+                const newCourts = missingCourtNumbers.map((number) => ({
+                    name: `Feld ${number}`,
+                } as ICourt));
+
+                return {
+                    ...prevTournament,
+                    courts: [...courts, ...newCourts], // Add the new courts immutably
+                };
+            }
+        });
+    };
+
+    const updateNumberOfTournamentTeams = (newAmount: number) => {
+        setTournament((prevTournament) => {
+            const teams = [...prevTournament.teams]; // Copy the existing teams array
+
+            if (teams.length >= newAmount) {
+                return {
+                    ...prevTournament,
+                    teams: teams.slice(0, newAmount), // Slice the array immutably
+                };
+            } else {
+                const missingTeamNumbers = Array.from({length: newAmount - teams.length}, (_, i) => teams.length + i + 1);
+                const newTeams = missingTeamNumbers.map((number) => ({
+                    id: number,
+                    tournament: prevTournament.id,
+                    players: [],
+                } as ITeam));
+
+                return {
+                    ...prevTournament,
+                    teams: [...teams, ...newTeams], // Add the new teams immutably
+                };
+            }
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null); // Reset error on form submit
-        setGeneratedPin(null); // Reset PIN on form submit
         try {
             const createdTournament = await createTournament(tournament);
-            // Store the generated PIN
-            setGeneratedPin(createdTournament.password);
-            navigate(`/tournament/${createdTournament.id}/edit`);
+            setTournament(createdTournament);
+            // Open the modal to show the PIN
+            setOpenModal(true);
         } catch (err) {
             setError('Failed to create tournament');
         }
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        navigate(`/tournament/${tournament.id}/edit`); // Navigate after closing modal
     };
 
     const steps = ['Details', 'Teams', 'Feldernamen'];
@@ -58,7 +122,9 @@ const CreateTournamentPage: React.FC = () => {
         switch (step) {
             case 0:
                 return <TournamentDetails tournament={tournament}
-                                          updateTournamentDetail={handleAttributeChange}/>;
+                                          updateTournamentDetail={handleAttributeChange}
+                                          updateNumberOfCourts={updateNumberOfTournamentCourts}
+                                          updateNumberOfTeams={updateNumberOfTournamentTeams}/>;
             case 1:
                 return <TournamentTeams tournament={tournament}
                                         updateTeams={(teams) => setTournament({...tournament, teams})}/>;
@@ -101,17 +167,25 @@ const CreateTournamentPage: React.FC = () => {
                 </Box>
             </Box>
 
-            {/* Display the generated PIN after successful creation */}
-            {generatedPin && (
-                <Box mt={4}>
-                    <Typography variant="h6" color="success.main">
-                        Turnier erstellt! Der Ausrichter-PIN lautet: {generatedPin}
+            <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+                <DialogContent sx={{ textAlign: 'center', p: 4 }}>
+                    <CheckCircle sx={{ fontSize: 80, color: 'green' }} />
+                    <Typography variant="h5" color="green" sx={{ mt: 2 }}>
+                       <strong>{tournament.name}</strong> wurde erfolgreich erstellt.
                     </Typography>
-                    <Typography variant="body1">
-                        Bitte notiere dir den PIN, da er für spätere Bearbeitungen des Turniers benötigt wird.
+                    <Typography variant="body1" color="primary" sx={{ mt: 2 }}>
+                        Dein Ausrichter-PIN lautet: <strong>{tournament.password}</strong>
                     </Typography>
-                </Box>
-            )}
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+                        Bitte notiere dir den PIN, da er für spätere Bearbeitungen und zum Starten des Turniers benötigt wird.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', mb: 2 }}>
+                    <Button onClick={handleCloseModal} color="primary" variant="contained">
+                        Verstanden
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             {/* Show error message if the tournament creation failed */}
             {error && (

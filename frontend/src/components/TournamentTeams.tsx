@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {ITeam, ITournament, IPlayer} from "../types/api";
 import Grid from '@mui/material/Grid2';
 import {Box, Card, CardContent, Typography, Button, TextField, IconButton, CardHeader} from "@mui/material";
@@ -17,40 +17,6 @@ export function TournamentTeams({tournament, updateTeams}: IProps) {
     });
     const [selectedTeamIdx, setSelectedTeamIdx] = useState<number | null>(null);
 
-
-    useEffect(() => {
-        if (tournament.teams.length < tournament.number_of_teams) {
-
-            const updatedTeams = [...tournament.teams, {
-                players: [],
-                id: tournament.teams.length,
-                tournament: tournament.id
-            } as unknown as ITeam];
-            updateTeams(updatedTeams);
-
-
-            console.log("useeffect courtnames not enough")
-            const m = tournament.teams.length;
-            const n = tournament.number_of_teams;
-            const missingTeamsIds = Array.from(Array(n - m).keys()).map(num => num + 1 + m);
-
-            const newTeams: ITeam[] = missingTeamsIds.map((number) => {
-                    return {
-                        players: [],
-                        id: number,
-                        tournament: tournament.id
-                    }
-                }
-            )
-            console.log(newTeams, m, n, missingTeamsIds)
-            updateTeams(tournament.teams.concat(newTeams));
-        } else {
-            if (tournament.teams.length > tournament.number_of_teams) {
-                const updatedTeams = tournament.teams.slice(0, tournament.number_of_teams);
-                updateTeams(updatedTeams);
-            }
-        }
-    }, [])
 
     // Handle adding a player to a team
     const handleAddPlayer = (teamIdx: number) => {
@@ -178,8 +144,6 @@ export function TournamentTeams({tournament, updateTeams}: IProps) {
                     </Grid>
                 ))}
 
-                {/* Option to add a new team */}
-                {tournament.teams.length < tournament.number_of_teams && (
                     <Grid>
                         <Button
                             variant="contained"
@@ -198,14 +162,7 @@ export function TournamentTeams({tournament, updateTeams}: IProps) {
                             Team hinzufügen
                         </Button>
                     </Grid>
-                )}
             </Grid>
-
-            {tournament.teams.length === tournament.number_of_teams && (
-                <Typography variant="body1" color="textSecondary" align="center" style={{marginTop: '20px'}}>
-                    Maximale Anzahl an Teams erreicht
-                </Typography>
-            )}
         </Box>
     );
 }

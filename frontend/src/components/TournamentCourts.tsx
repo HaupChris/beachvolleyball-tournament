@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {TextField, List, ListItem, ListItemText, IconButton, Typography, Box} from '@mui/material';
 import {ICourt, ITournament} from "../types/api";
 import EditIcon from '@mui/icons-material/Edit';
@@ -10,26 +10,6 @@ interface IProps {
 
 export function TournamentCourts({tournament, updateCourts}: IProps) {
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
-
-    useEffect(() => {
-        if (tournament.courts.length < tournament.number_of_courts) {
-            console.log("useeffect courtnames not enough")
-            const m = tournament.courts.length;
-            const n = tournament.number_of_courts;
-            const missingCourtNumbers = Array.from(Array(n-m).keys()).map(num => num + 1 + m)
-            const newCourts: ICourt[] = missingCourtNumbers.map((number) => {
-                    return {name: `Feld ${number}`}
-                }
-            )
-            console.log(newCourts, m, n, missingCourtNumbers, newCourts)
-            updateCourts(tournament.courts.concat(newCourts));
-        } else{
-            if (tournament.courts.length > tournament.number_of_courts) {
-                const updatedCourts = tournament.courts.slice(0, tournament.number_of_courts);
-                updateCourts(updatedCourts);
-            }
-        }
-    }, [])
 
     const handleEditClick = (index: number) => {
         setEditIndex(index);

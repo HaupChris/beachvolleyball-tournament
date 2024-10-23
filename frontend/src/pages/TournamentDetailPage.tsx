@@ -25,7 +25,7 @@ const TournamentDetailPage: React.FC = () => {
     return (
         <Container>
             <Typography variant="h4">{tournament.name}</Typography>
-            <Typography variant="body1">Teams: {tournament.number_of_teams}</Typography>
+            <Typography variant="body1">Teams: {tournament.teams.length}</Typography>
             <Typography variant="body1">Sätze zum Gewinn: {tournament.sets_to_win}</Typography>
             <Typography variant="body1">Punkte pro Satz: {tournament.points_per_set}</Typography>
 

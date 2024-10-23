@@ -1,15 +1,29 @@
 import {ITournament} from "../types/api";
-import {Box, InputLabel, MenuItem, Select, TextField} from "@mui/material";
-import React from "react";
-import {Form} from "react-router-dom";
+import {Box, MenuItem, Select, TextField} from "@mui/material";
+import React, {ChangeEvent} from "react";
+
 
 interface IProps {
     tournament: ITournament
     updateTournamentDetail: (attribute: keyof Omit<ITournament, 'courts' | 'teams' | 'matches'>, value: any) => void
+    updateNumberOfCourts: (newAmount: number) => void;
+    updateNumberOfTeams: (newAmount: number) => void;
 }
 
 export function TournamentDetails(props: IProps) {
     const tournament = props.tournament;
+
+    const handleChangeNumberOfTeams = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.valueAsNumber >= 0) {
+            props.updateNumberOfTeams(event.target.valueAsNumber);
+        }
+    }
+
+    const handleChangeNumberOfCourts = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.valueAsNumber >= 0) {
+            props.updateNumberOfCourts(event.target.valueAsNumber);
+        }
+    }
 
     return <Box>
         <TextField
@@ -23,8 +37,8 @@ export function TournamentDetails(props: IProps) {
         <TextField
             label="Anzahl der Teams"
             type="number"
-            value={tournament.number_of_teams}
-            onChange={(e) => props.updateTournamentDetail('number_of_teams', parseInt(e.target.value))}
+            value={tournament.teams.length}
+            onChange={handleChangeNumberOfTeams}
             fullWidth
             margin="normal"
         />
@@ -39,8 +53,8 @@ export function TournamentDetails(props: IProps) {
         <TextField
             label="Anzahl der Felder"
             type="number"
-            value={tournament.number_of_courts}
-            onChange={(e) => props.updateTournamentDetail('number_of_courts', parseInt(e.target.value))}
+            value={tournament.courts.length}
+            onChange={handleChangeNumberOfCourts}
             fullWidth
             margin="normal"
         />
@@ -62,6 +76,7 @@ export function TournamentDetails(props: IProps) {
         />
 
         <Select
+            variant={"outlined"}
             labelId="demo-simple-select-label"
             id="demo-simple-select"
             fullWidth

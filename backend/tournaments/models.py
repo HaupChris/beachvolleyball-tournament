@@ -7,8 +7,6 @@ class Tournament(models.Model):
     ]
 
     name = models.CharField(max_length=100)
-    number_of_teams = models.IntegerField()
-    number_of_courts = models.IntegerField(default=1)
     players_per_team = models.IntegerField(default=2)
     sets_to_win = models.IntegerField()
     points_per_set = models.IntegerField()
@@ -41,7 +39,7 @@ class Player(models.Model):
     team = models.ForeignKey(Team, related_name='players', on_delete=models.CASCADE)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    skill_level = models.IntegerField()
+    skill_level = models.IntegerField(default=1)
 
 class Match(models.Model):
     tournament = models.ForeignKey(Tournament, related_name='matches', on_delete=models.CASCADE)

@@ -32,10 +32,8 @@ export interface ICourt {
 export interface ITournament {
     id: number;
     name: string;
-    number_of_teams: number;
     sets_to_win: number;
     points_per_set: number;
-    number_of_courts: number;
     players_per_team: number;
     courts: ICourt[];
     teams: ITeam[];         // Liste von Teams

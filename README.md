@@ -10,3 +10,9 @@
   - [ ] KO System
   - [ ] Gruppen + KO Runde
 
+- Planung erleichtern durch
+  - [ ] Hinzufügen von Beginn und Ende des Turniers --> Zeit pro Spiel wird ausgerechnet
+  - [ ] Hinzufügen von geplanter Dauer pro Spiel
+  - [ ] Zeitplan hinzufügen, wann welches Spiel stattfindet
+  - 
+

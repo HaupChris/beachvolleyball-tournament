@@ -7,7 +7,6 @@ import {
     IconButton,
     Drawer,
     List,
-    ListItem,
     ListItemIcon,
     ListItemText,
     useMediaQuery,

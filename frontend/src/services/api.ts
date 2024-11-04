@@ -1,6 +1,6 @@
 // src/services/api.ts
 import axios from 'axios';
-import {ITournament, ITeam, IMatch, ICourt} from '../types/api';
+import {ITournament, ITeam, IMatch, ICourt, ITournamentState} from '../types/api';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -58,58 +58,27 @@ export async function deleteTournament(id: number): Promise<void> {
   }
 }
 
+export const startTournament = async (tournamentId: number): Promise<void> => {
+    await axios.post(`${API_BASE_URL}/tournaments/${tournamentId}/start_tournament/`);
+};
 
+export const getTournamentState = async (tournamentId: number): Promise<ITournamentState> => {
+    const response = await axios.get(`${API_BASE_URL}/tournaments/${tournamentId}/tournament_state/`);
+    return response.data;
+};
 
-// Helper function to create dummy players
-// const createDummyPlayer = (firstName: string, lastName: string, skillLevel: number): IPlayer => {
-//     return {
-//         first_name: firstName,
-//         last_name: lastName,
-//         skill_level: skillLevel,
-//     };
-// };
+// src/services/api.ts
 
-// Helper function to create dummy teams
-// const createDummyTeam = (id: number, tournamentId: number): ITeam => {
-//     return {
-//         id: id,
-//         tournament: tournamentId,
-//         players: [
-//             createDummyPlayer('Player1', `Team${id}`, Math.floor(Math.random() * 10)),
-//             createDummyPlayer('Player2', `Team${id}`, Math.floor(Math.random() * 10)),
-//         ],
-//     };
-// };
-//
-// // Helper function to create dummy matches
-// const createDummyMatch = (id: number, team1: ITeam, team2: ITeam): IMatch => {
-//     return {
-//         id: id,
-//         team1: team1,
-//         team2: team2,
-//         score_team1: Math.floor(Math.random() * 25),
-//         score_team2: Math.floor(Math.random() * 25),
-//         played_at: null, // set to null initially, can be updated with actual timestamp when played
-//     };
-// };
-//
-// // Helper function to create dummy courts
-// const createDummyCourt = (name: string): ICourt => {
-//     return {
-//         name: name,
-//     };
-// };
+export const submitMatchResults = async (matches: IMatch[]): Promise<void> => {
+    await axios.post(`${API_BASE_URL}/tournaments/update_matches/`, { matches });
+};
+
 
 // Function to create a dummy tournament
 export function createDummyTournament(): ITournament{
     const tournamentId = Math.floor(Math.random() * 1000); // Random tournament ID
-
     const teams: ITeam[] = [];
-
-
     const courts: ICourt[] = [];
-
-
     const matches: IMatch[] = []
 
 
@@ -123,8 +92,9 @@ export function createDummyTournament(): ITournament{
         teams: teams,
         matches: matches,
         created_at: new Date().toDateString(),
-        mode: 'round_robin', // Set tournament mode to round robin
+        mode: 'round_robin_once', // Set tournament mode to round robin
         password: 'securepassword123',
+        status: 'planned'
     };
 };
 

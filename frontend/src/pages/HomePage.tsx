@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import {
     Button,
     Container,
@@ -10,9 +10,10 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import TournamentCard from '../components/TournamentCard';
-import { deleteTournament, fetchTournaments, validateTournamentPin } from '../services/api';
+import {deleteTournament, fetchTournaments, startTournament, validateTournamentPin} from '../services/api';
 import { ITournament } from "../types/api";
 import { useNavigate } from "react-router-dom";
+import {Keyboard} from "@mui/icons-material";
 
 const HomePage: React.FC = () => {
     const [tournaments, setTournaments] = useState<ITournament[]>([]);
@@ -47,8 +48,8 @@ const HomePage: React.FC = () => {
             if (isValid) {
                 switch (selectedAction) {
                     case 'start':
-                        // Handle start action
-                        console.log("Tournament started");
+                        await startTournament(selectedTournamentId); // Start tournament and generate schedule
+                        navigate(`/tournament/${selectedTournamentId}/play`);
                         break;
                     case 'edit':
                         navigate(`/tournament/${selectedTournamentId}/edit`);
@@ -95,6 +96,7 @@ const HomePage: React.FC = () => {
                         label="PIN eingeben"
                         value={enteredPin}
                         onChange={(e) => setEnteredPin(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" ? handlePinSubmit() : ""}
                         fullWidth
                         margin="normal"
                         error={!!pinError}

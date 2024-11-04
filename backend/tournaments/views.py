@@ -94,6 +94,51 @@ class TournamentViewSet(viewsets.ModelViewSet):
         except Tournament.DoesNotExist:
             return Response({'error': 'Tournament not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    @action(detail=True, methods=['post'])
+    def start_tournament(self, request, pk=None):
+        tournament = self.get_object()
+        if tournament.status == 'started':
+            Response({'message': 'Tournament has already been started successfully.'})
+        tournament.start_tournament()  # Locks the settings and generates schedule
+        return Response({'message': 'Tournament started successfully.'})
+
+    @action(detail=True, methods=['get'])
+    def tournament_state(self, request, pk=None):
+        tournament = self.get_object()
+
+        # Serialize played and upcoming matches
+        played_matches = [
+            {
+                'team1': match.team1.name,
+                'team2': match.team2.name,
+                'sets': [{'score_team1': set.score_team1, 'score_team2': set.score_team2} for set in match.sets.all()],
+                'final_score': self.calculate_final_score(match)
+            }
+            for match in tournament.get_played_matches()
+        ]
+
+        upcoming_matches = [
+            {
+                'team1': match.team1.name,
+                'team2': match.team2.name,
+                'round': match.round,
+            }
+            for match in tournament.get_upcoming_matches()
+        ]
+
+        current_state = tournament.get_current_state()
+
+        return Response({
+            'played_matches': played_matches,
+            'upcoming_matches': upcoming_matches,
+            'current_state': current_state,
+        })
+
+    def calculate_final_score(self, match):
+        team1_wins = sum(1 for set in match.sets.all() if set.score_team1 > set.score_team2)
+        team2_wins = sum(1 for set in match.sets.all() if set.score_team2 > set.score_team1)
+        return f"{team1_wins} - {team2_wins}"
+
 
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()

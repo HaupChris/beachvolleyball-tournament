@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import {ITeam, ITournament, IPlayer} from "../types/api";
 import Grid from '@mui/material/Grid2';
 import {Box, Card, CardContent, Typography, Button, TextField, IconButton, CardHeader, Chip} from "@mui/material";
-import {AddCircleOutline, Close, DeleteOutline, Face, Face2, Face3, Face4, Face5} from '@mui/icons-material';
+import {AddCircleOutline, Close,  Face} from '@mui/icons-material';
+import {getTeamName} from "../services/helpers";
 
 interface IProps {
     tournament: ITournament
@@ -57,12 +58,7 @@ export function TournamentTeams({tournament, updateTeams}: IProps) {
                                     <Typography variant="h6" gutterBottom>
                                         {team.players.length >= tournament.players_per_team ?
                                             // Sort players by last name and display their last names
-                                            team.players
-                                                .sort((a, b) => a.last_name.localeCompare(b.last_name))
-                                                .map(player => player.last_name)
-                                                .join(' ')  // Join all last names with a space
-                                            :
-                                            "Team " + (teamIdx + 1) // Fallback to a default team name if the number of players is less than expected
+                                            getTeamName(team):  "Team " + (teamIdx + 1) // Fallback to a default team name if the number of players is less than expected
                                         }
                                     </Typography>
                                 }

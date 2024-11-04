@@ -1,5 +1,3 @@
-
-
 export interface IPlayer {
     first_name: string;
     last_name: string;
@@ -13,12 +11,16 @@ export interface ITeam {
     tournament: number;  // Turnier-ID, zu dem das Team gehört
 }
 
-
 // Interface für ein Match
 export interface IMatch {
     id: number;
     team1: ITeam;
     team2: ITeam;
+    sets: ISet[];
+    final_score: string; // Derived final score based on sets
+}
+
+export interface ISet {
     score_team1: number;
     score_team2: number;
     played_at: string | null;
@@ -39,6 +41,14 @@ export interface ITournament {
     teams: ITeam[];         // Liste von Teams
     matches: IMatch[];      // Liste von Spielen (Match)
     created_at: string;     // Zeitstempel
-    mode: 'round_robin' | 'knockout';  // Turniermodus
+    mode: 'single_elimination' | 'double_elimination' | 'group_elimination' | 'swiss' | 'round_robin_once' | 'round_robin_twice';  // Turniermodus
+    status: 'planned' | 'started' | 'finished';
     password: string;
+}
+
+export interface ITournamentState {
+    name: string;
+    played_matches: IMatch[];
+    upcoming_matches: IMatch[];
+    current_state: any; // Adjust this based on your mode-specific data
 }

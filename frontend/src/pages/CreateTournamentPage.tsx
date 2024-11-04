@@ -9,7 +9,7 @@ import {
     StepLabel,
     Dialog,
     DialogContent,
-    DialogActions
+    DialogActions, Alert
 } from '@mui/material';
 import {createDummyTournament, createTournament} from '../services/api';
 import {useNavigate} from "react-router-dom";
@@ -34,6 +34,7 @@ const CreateTournamentPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [activeStep, setActiveStep] = useState(0); // Stepper state
     const [openModal, setOpenModal] = useState(false); // Modal state
+
     const navigate = useNavigate();
 
     const handleAttributeChange = (attribute: keyof Omit<ITournament, 'courts' | 'teams' | 'matches'>, value: any) => {
@@ -42,8 +43,36 @@ const CreateTournamentPage: React.FC = () => {
         }
     };
 
+    const canProceedToNextStep = () => {
+        // Reset error messages
+        setError(null);
+
+        if (activeStep === 0) {
+            // Step 1: Check that there are teams and courts selected
+            if (tournament.teams.length <= 1) {
+                setError("Anzahl der Teams muss mehr als 1 sein!");
+                return false;
+            }
+            if (tournament.courts.length <= 0) {
+                setError("Anzahl der Felder muss mindestens 1 sein!");
+                return false;
+            }
+        } else if (activeStep === 1) {
+            // Step 2: Check that every team has players added
+            for (const team of tournament.teams) {
+                if (!team.players || team.players.length === 0) {
+                    setError(`Bitte füge ${tournament.players_per_team} Spieler*innen jedem Team hinzu!`);
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
     const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        if (canProceedToNextStep()) {
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        }
     };
 
     const handleBack = () => {
@@ -107,7 +136,7 @@ const CreateTournamentPage: React.FC = () => {
             // Open the modal to show the PIN
             setOpenModal(true);
         } catch (err) {
-            setError('Failed to create tournament');
+            setError('Fehler beim Erstellen des Turniers!');
         }
     };
 
@@ -146,6 +175,7 @@ const CreateTournamentPage: React.FC = () => {
                 ))}
             </Stepper>
 
+
             <Box mt={4}>
                 {renderStepContent(activeStep)}
                 <Box mt={2}>
@@ -154,6 +184,19 @@ const CreateTournamentPage: React.FC = () => {
                             Zurück
                         </Button>
                     )}
+
+                    {/* Show error message if the tournament creation failed */}
+                    {error &&
+                        <Alert severity="error"
+                               variant={"outlined"}
+                               sx={{marginY: "1em"}}
+                               onClose={() => {
+                                   setError(null)
+                               }}>
+                            {error}
+                        </Alert>
+                    }
+
                     {activeStep === steps.length - 1 ? (
                         <Button type="submit" variant="contained" color="primary" onClick={handleSubmit}>
                             Turnier erstellen
@@ -168,33 +211,30 @@ const CreateTournamentPage: React.FC = () => {
             </Box>
 
             <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-                <DialogContent sx={{ textAlign: 'center', p: 4 }}>
-                    <CheckCircle sx={{ fontSize: 80, color: 'green' }} />
-                    <Typography variant="h5" color="green" sx={{ mt: 2 }}>
-                       <strong>{tournament.name}</strong> wurde erfolgreich erstellt.
+                <DialogContent sx={{textAlign: 'center', p: 4}}>
+                    <CheckCircle sx={{fontSize: 80, color: 'green'}}/>
+                    <Typography variant="h5" color="green" sx={{mt: 2}}>
+                        <strong>{tournament.name}</strong> wurde erfolgreich erstellt.
                     </Typography>
-                    <Typography variant="body1" color="primary" sx={{ mt: 2 }}>
+                    <Typography variant="body1" color="primary" sx={{mt: 2}}>
                         Dein Ausrichter-PIN lautet: <strong>{tournament.password}</strong>
                     </Typography>
-                    <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-                        Bitte notiere dir den PIN, da er für spätere Bearbeitungen und zum Starten des Turniers benötigt wird.
+                    <Typography variant="body2" color="textSecondary" sx={{mt: 2}}>
+                        Bitte notiere dir den PIN, da er für spätere Bearbeitungen und zum Starten des Turniers benötigt
+                        wird.
                     </Typography>
                 </DialogContent>
-                <DialogActions sx={{ justifyContent: 'center', mb: 2 }}>
+                <DialogActions sx={{justifyContent: 'center', mb: 2}}>
                     <Button onClick={handleCloseModal} color="primary" variant="contained">
                         Verstanden
                     </Button>
                 </DialogActions>
             </Dialog>
 
-            {/* Show error message if the tournament creation failed */}
-            {error && (
-                <Typography variant="body1" color="error.main">
-                    {error}
-                </Typography>
-            )}
+
         </Container>
-    );
+    )
+        ;
 };
 
 export default CreateTournamentPage;

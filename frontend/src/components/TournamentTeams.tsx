@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {ITeam, ITournament, IPlayer} from "../types/api";
 import Grid from '@mui/material/Grid2';
-import {Box, Card, CardContent, Typography, Button, TextField, IconButton, CardHeader} from "@mui/material";
-import {AddCircleOutline, Close, DeleteOutline} from '@mui/icons-material';
+import {Box, Card, CardContent, Typography, Button, TextField, IconButton, CardHeader, Chip} from "@mui/material";
+import {AddCircleOutline, Close, DeleteOutline, Face, Face2, Face3, Face4, Face5} from '@mui/icons-material';
 
 interface IProps {
     tournament: ITournament
@@ -75,12 +75,11 @@ export function TournamentTeams({tournament, updateTeams}: IProps) {
                                 {team.players.map((player, playerIdx) => (
                                     <Box key={playerIdx} display="flex" justifyContent="space-between"
                                          alignItems="center">
-                                        <Typography variant="body1">
-                                            {player.first_name} {player.last_name}, Skill: {player.skill_level}
-                                        </Typography>
-                                        <IconButton onClick={() => handleDeletePlayer(teamIdx, playerIdx)}>
-                                            <DeleteOutline/>
-                                        </IconButton>
+                                        <Chip sx={{marginBottom: "1em"}}
+                                            icon={<Face/>}
+                                              label={player.first_name + " " + player.last_name + ", N: " + player.skill_level}
+                                              onDelete={() => handleDeletePlayer(teamIdx, playerIdx)}
+                                        />
                                     </Box>
                                 ))}
 
@@ -144,24 +143,24 @@ export function TournamentTeams({tournament, updateTeams}: IProps) {
                     </Grid>
                 ))}
 
-                    <Grid>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            startIcon={<AddCircleOutline/>}
-                            fullWidth
-                            onClick={() => {
-                                const updatedTeams = [...tournament.teams, {
-                                    players: [],
-                                    id: tournament.teams.length,
-                                    tournament: tournament.id
-                                } as unknown as ITeam];
-                                updateTeams(updatedTeams);
-                            }}
-                        >
-                            Team hinzufügen
-                        </Button>
-                    </Grid>
+                <Grid>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<AddCircleOutline/>}
+                        fullWidth
+                        onClick={() => {
+                            const updatedTeams = [...tournament.teams, {
+                                players: [],
+                                id: tournament.teams.length,
+                                tournament: tournament.id
+                            } as unknown as ITeam];
+                            updateTeams(updatedTeams);
+                        }}
+                    >
+                        Team hinzufügen
+                    </Button>
+                </Grid>
             </Grid>
         </Box>
     );

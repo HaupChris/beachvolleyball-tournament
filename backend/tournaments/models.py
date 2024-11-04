@@ -137,7 +137,6 @@ class SingleEliminationScheduler:
         # Championship match
         Match.objects.bulk_create(matches)
 
-
 class DoubleEliminationScheduler:
     def generate_schedule(self, tournament):
         teams = list(Team.objects.filter(tournament=tournament))
@@ -218,7 +217,6 @@ class SwissScheduler:
 
         Match.objects.bulk_create(matches)
 
-
 class RoundRobinScheduler:
     def __init__(self, facing_twice=False):
         self.facing_twice = facing_twice
@@ -245,7 +243,6 @@ class RoundRobinScheduler:
                     ))
 
         Match.objects.bulk_create(matches)
-
 
 class Team(models.Model):
     tournament = models.ForeignKey(Tournament, related_name='teams', on_delete=models.CASCADE)

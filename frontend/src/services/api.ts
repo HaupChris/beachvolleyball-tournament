@@ -34,7 +34,7 @@ export const updateTournamentDetails = async (
   await axios.put(`${API_BASE_URL}/tournaments/${tournamentId}/`, updatedDetails);
 };
 
-export const validateTournamentPin = async (tournamentId: string, pin: string): Promise<boolean> => {
+export const validateTournamentPin = async (tournamentId: number, pin: string): Promise<boolean> => {
   try {
     const response = await axios.post(`http://localhost:8000/api/tournaments/${tournamentId}/validate_pin/`, { pin });
     return response.status === 200;
@@ -42,6 +42,21 @@ export const validateTournamentPin = async (tournamentId: string, pin: string): 
     return false;
   }
 };
+
+/**
+ * Delete a tournament by ID.
+ * @param id - The ID of the tournament to delete.
+ * @returns A promise that resolves when the tournament is successfully deleted.
+ */
+export async function deleteTournament(id: number): Promise<void> {
+  try {
+    await axios.delete(`${API_BASE_URL}/tournaments/${id}/`);
+    console.log('Tournament deleted successfully');
+  } catch (error) {
+    console.error('Error deleting tournament:', error);
+    throw error;
+  }
+}
 
 
 
@@ -107,7 +122,7 @@ export function createDummyTournament(): ITournament{
         courts: courts,
         teams: teams,
         matches: matches,
-        created_at: new Date().toISOString(),
+        created_at: new Date().toDateString(),
         mode: 'round_robin', // Set tournament mode to round robin
         password: 'securepassword123',
     };

@@ -85,6 +85,15 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['delete'])
+    def delete_tournament(self, request, pk=None):
+        try:
+            tournament = self.get_object()
+            tournament.delete()
+            return Response({'message': 'Tournament deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except Tournament.DoesNotExist:
+            return Response({'error': 'Tournament not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()

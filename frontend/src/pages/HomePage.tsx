@@ -1,19 +1,27 @@
-import React, {useEffect, useState} from 'react';
-import {Button, Container, TextField, Dialog, DialogActions, DialogContent, DialogTitle} from '@mui/material';
-import Grid from '@mui/material/Grid2'; // Updated the correct Grid import
+import React, { useEffect, useState } from 'react';
+import {
+    Button,
+    Container,
+    TextField,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle
+} from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import TournamentCard from '../components/TournamentCard';
-import {fetchTournaments, validateTournamentPin} from '../services/api';
-import {ITournament} from "../types/api";
-import {useNavigate} from "react-router-dom";
-
+import { deleteTournament, fetchTournaments, validateTournamentPin } from '../services/api';
+import { ITournament } from "../types/api";
+import { useNavigate } from "react-router-dom";
 
 const HomePage: React.FC = () => {
     const [tournaments, setTournaments] = useState<ITournament[]>([]);
     const [enteredPin, setEnteredPin] = useState('');
-    const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(null);
+    const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
+    const [selectedAction, setSelectedAction] = useState<'start' | 'edit' | 'delete' | null>(null);
     const [pinError, setPinError] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false); // State for Modal
-    const [selectedTournamentName, setSelectedTournamentName] = useState<string | null>(null); // Tournament name for modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedTournamentName, setSelectedTournamentName] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,18 +33,32 @@ const HomePage: React.FC = () => {
         getTournaments().then();
     }, []);
 
-    const handleEditClick = (tournamentId: string, tournamentName: string) => {
+    const openPinModal = (tournamentId: number, tournamentName: string, action: 'start' | 'edit' | 'delete') => {
         setSelectedTournamentId(tournamentId);
         setSelectedTournamentName(tournamentName);
-        setIsModalOpen(true); // Open the modal
-        setPinError(null); // Reset PIN error on new open
+        setSelectedAction(action);
+        setIsModalOpen(true);
+        setPinError(null);
     };
 
     const handlePinSubmit = async () => {
-        if (selectedTournamentId) {
-            const isValid = await validateTournamentPin(selectedTournamentId, enteredPin); // PIN validation API call
+        if (selectedTournamentId && selectedAction) {
+            const isValid = await validateTournamentPin(selectedTournamentId, enteredPin);
             if (isValid) {
-                navigate(`/tournament/${selectedTournamentId}/edit`);
+                switch (selectedAction) {
+                    case 'start':
+                        // Handle start action
+                        console.log("Tournament started");
+                        break;
+                    case 'edit':
+                        navigate(`/tournament/${selectedTournamentId}/edit`);
+                        break;
+                    case 'delete':
+                        await deleteTournament(selectedTournamentId);
+                        setTournaments(tournaments.filter(t => t.id !== selectedTournamentId));
+                        break;
+                }
+                handleCloseModal();
             } else {
                 setPinError('Falscher PIN, bitte erneut versuchen.');
             }
@@ -44,46 +66,52 @@ const HomePage: React.FC = () => {
     };
 
     const handleCloseModal = () => {
-        setIsModalOpen(false); // Close the modal
-        setEnteredPin(''); // Reset the entered PIN when closing
+        setIsModalOpen(false);
+        setEnteredPin('');
     };
 
-    return <Container>
-        <Grid container spacing={3}>
-            {tournaments.map((tournament) => (
-                 <Grid>
-                    <TournamentCard name={tournament.name} createdAt={tournament.created_at}/>
-                     <Button variant="contained" onClick={() =>  handleEditClick(tournament.id.toString(), tournament.name)}>
-                        Turnier bearbeiten
-                    </Button>
-                </Grid>
-            ))}
-        </Grid>
+    return (
+        <Container>
+            <Grid container spacing={3}>
+                {tournaments.map((tournament) => (
+                    <Grid>
+                        <TournamentCard
+                            name={tournament.name}
+                            createdAt={tournament.created_at}
+                            onStartClick={() => openPinModal(tournament.id, tournament.name, 'start')}
+                            onEditClick={() => openPinModal(tournament.id, tournament.name, 'edit')}
+                            onWatchClick={() => navigate(`/tournament/${tournament.id}`)}
+                            onDeleteClick={() => openPinModal(tournament.id, tournament.name, 'delete')}
+                        />
+                    </Grid>
+                ))}
+            </Grid>
 
-        {/* Modal for PIN entry */}
-        <Dialog open={isModalOpen} onClose={handleCloseModal}>
-            <DialogTitle>{selectedTournamentName} bearbeiten</DialogTitle>
-            <DialogContent>
-                <TextField
-                    label="PIN eingeben"
-                    value={enteredPin}
-                    onChange={(e) => setEnteredPin(e.target.value)}
-                    fullWidth
-                    margin="normal"
-                    error={!!pinError} // If there is an error, mark the field as error
-                    helperText={pinError} // Display error message if any
-                />
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleCloseModal} color="secondary">
-                    Abbrechen
-                </Button>
-                <Button onClick={handlePinSubmit} color="primary" variant="contained">
-                    Bestätigen
-                </Button>
-            </DialogActions>
-        </Dialog>
-    </Container>;
+            {/* Modal for PIN entry */}
+            <Dialog open={isModalOpen} onClose={handleCloseModal}>
+                <DialogTitle>{selectedTournamentName} {selectedAction === 'edit' ? 'bearbeiten' : selectedAction === 'delete' ? 'löschen' : 'starten'}</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="PIN eingeben"
+                        value={enteredPin}
+                        onChange={(e) => setEnteredPin(e.target.value)}
+                        fullWidth
+                        margin="normal"
+                        error={!!pinError}
+                        helperText={pinError}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseModal} color="secondary">
+                        Abbrechen
+                    </Button>
+                    <Button onClick={handlePinSubmit} color="primary" variant="contained">
+                        Bestätigen
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Container>
+    );
 };
 
 export default HomePage;

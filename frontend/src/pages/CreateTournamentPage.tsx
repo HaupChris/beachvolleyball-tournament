@@ -230,8 +230,6 @@ const CreateTournamentPage: React.FC = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-
         </Container>
     )
         ;

@@ -7,7 +7,7 @@ class Tournament(models.Model):
         ('single_elimination', 'Single Elimination'),
         ('double_elimination', 'Double Elimination'),
         ('group_elimination', 'Gruppenphase + KO-Runde'),
-        ('swiss', 'Schweitzer System'),
+        ('swiss', 'Schweizer System'),
         ('round_robin_once', 'Jeder gegen Jeden nur Hinrude'),
         ('round_robin_twice', 'Jeder gegen Jeden Hin- und Rückrunde'),
     ]
@@ -82,7 +82,7 @@ class Tournament(models.Model):
             losses = matches.count() - wins
             standings.append({'team': team.name, 'wins': wins, 'losses': losses})
         standings.sort(key=lambda x: (-x['wins'], x['losses']))
-        return standings#
+        return standings
 
     def get_group_tables(self):
         groups = {}
@@ -196,7 +196,6 @@ class GroupEliminationScheduler:
         # Elimination Stage - Top teams advance
         advancing_teams = [group[0] for group in groups]  # Example: top team from each group
         SingleEliminationScheduler().generate_schedule_for_teams(tournament, advancing_teams)
-
 
 class SwissScheduler:
     def generate_schedule(self, tournament):

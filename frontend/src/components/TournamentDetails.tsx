@@ -84,8 +84,13 @@ export function TournamentDetails(props: IProps) {
             label="Modus"
             onChange={(e) => props.updateTournamentDetail('mode', e.target.value)}
         >
-            <MenuItem value={"round_robin"}>Jeder gegen Jeden</MenuItem>
-            <MenuItem value={"knockout"}>K.O. System</MenuItem>
+            <MenuItem value={"single_elimination"}>Single Elimination</MenuItem>
+            <MenuItem value={"double_elimination"}>Double Elimination</MenuItem>
+            <MenuItem value={"group_elimination"}>Gruppenphase + KO-Runde</MenuItem>
+            <MenuItem value={"swiss"}>Schweizer System</MenuItem>
+            <MenuItem value={"round_robin_once"}>Jeder gegen Jeden nur Hinrude</MenuItem>
+            <MenuItem value={"round_robin_twice"}>Jeder gegen Jeden Hin- und Rückrunde</MenuItem>
+
 
         </Select>
 

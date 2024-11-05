@@ -13,7 +13,7 @@ import TournamentCard from '../components/TournamentCard';
 import {deleteTournament, fetchTournaments, startTournament, validateTournamentPin} from '../services/api';
 import { ITournament } from "../types/api";
 import { useNavigate } from "react-router-dom";
-import {Keyboard} from "@mui/icons-material";
+
 
 const HomePage: React.FC = () => {
     const [tournaments, setTournaments] = useState<ITournament[]>([]);

@@ -33,6 +33,21 @@ class TournamentViewSet(viewsets.ModelViewSet):
         response_data = serializer.data
         response_data['password'] = tournament.password
 
+        # Update courts
+        courts_data = request.data.get('courts', [])
+        for idx, court_name in enumerate(courts_data):
+            Court.objects.create(tournament=tournament, name=court_name)
+
+        # Save nested teams and players data
+        teams_data = self.request.data.get('teams', [])
+        for team_data in teams_data:
+            team = Team.objects.create(tournament=tournament)
+            players = team_data.get('players', [])
+
+            # Save each player in the team
+            for player in players:
+                Player.objects.create(team=team, first_name=player["first_name"], last_name=player["last_name"], skill_level=player["skill_level"])
+
         return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=True, methods=['post'])
@@ -45,11 +60,10 @@ class TournamentViewSet(viewsets.ModelViewSet):
             setattr(tournament, field, value)
         tournament.save()
 
-        # Update courts
+        # Create courts
         courts_data = request.data.get('courts', [])
         for idx, court_name in enumerate(courts_data):
-            court, created = Court.objects.get_or_create(tournament=tournament, id=idx + 1)
-            court.name = court_name
+            court, created = Court.objects.get_or_create(tournament=tournament, name=court_name)
             court.save()
 
         # Update team players
@@ -58,10 +72,12 @@ class TournamentViewSet(viewsets.ModelViewSet):
             team = Team.objects.filter(tournament=tournament)[team_idx]
             for player_idx, player_name in enumerate(players_data):
                 first_name, last_name = player_name.split(" ")
-                player, created = Player.objects.get_or_create(team=team, id=player_idx + 1)
+                player, created = Player.objects.get_or_create(team=team)
                 player.first_name = first_name
                 player.last_name = last_name
                 player.save()
+
+
 
         return Response({'message': 'Tournament, courts, and players updated successfully.'})
 

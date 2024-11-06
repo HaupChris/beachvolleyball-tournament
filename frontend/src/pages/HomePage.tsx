@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Button,
     Container,
@@ -11,8 +11,8 @@ import {
 import Grid from '@mui/material/Grid2';
 import TournamentCard from '../components/TournamentCard';
 import {deleteTournament, fetchTournaments, startTournament, validateTournamentPin} from '../services/api';
-import { ITournament } from "../types/api";
-import { useNavigate } from "react-router-dom";
+import {ITournament} from "../types/api";
+import {useNavigate} from "react-router-dom";
 
 
 const HomePage: React.FC = () => {
@@ -22,6 +22,7 @@ const HomePage: React.FC = () => {
     const [selectedAction, setSelectedAction] = useState<'start' | 'edit' | 'delete' | null>(null);
     const [pinError, setPinError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const pinInputRef = useRef<HTMLInputElement | null>(null);
     const [selectedTournamentName, setSelectedTournamentName] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -33,6 +34,16 @@ const HomePage: React.FC = () => {
         };
         getTournaments().then();
     }, []);
+
+    useEffect(() => {
+        if (isModalOpen) {
+            setTimeout(() => {
+                if (pinInputRef.current) {
+                    pinInputRef.current.focus();
+                }
+            }, 0); // slight delay to ensure modal is fully opened
+        }
+    }, [isModalOpen]);
 
     const openPinModal = (tournamentId: number, tournamentName: string, action: 'start' | 'edit' | 'delete') => {
         setSelectedTournamentId(tournamentId);
@@ -93,6 +104,7 @@ const HomePage: React.FC = () => {
                 <DialogTitle>{selectedTournamentName} {selectedAction === 'edit' ? 'bearbeiten' : selectedAction === 'delete' ? 'löschen' : 'starten'}</DialogTitle>
                 <DialogContent>
                     <TextField
+                        inputRef={pinInputRef}
                         label="PIN eingeben"
                         value={enteredPin}
                         onChange={(e) => setEnteredPin(e.target.value)}
